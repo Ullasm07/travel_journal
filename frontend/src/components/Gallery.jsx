@@ -12,12 +12,12 @@ const GalleryPage = () => {
     fetchImages();
   }, []);
 
-  // Function to fetch images from the server
+  // Function to fetch images metadata from the server
   const fetchImages = () => {
     axios
-      .get('http://localhost:5000/api/gallery') // Adjust if your API endpoint differs
+      .get('http://localhost:5000/api/gallery') // Fetch image metadata
       .then((response) => {
-        setImages(response.data); // Backend must return an array of image objects or file paths
+        setImages(response.data); // Backend must return an array of file metadata
       })
       .catch((err) => {
         console.error(err);
@@ -46,7 +46,7 @@ const GalleryPage = () => {
     axios
       .post('http://localhost:5000/api/gallery/upload', formData)
       .then((response) => {
-        setImages([...images, response.data]); // Add new image to the gallery
+        setImages([...images, response.data.file]); // Add new image metadata to the gallery
         setImage(null); // Reset the file input
         setError(''); // Clear any previous errors
       })
@@ -57,11 +57,11 @@ const GalleryPage = () => {
   };
 
   // Handle deleting an image
-  const handleDeleteImage = (filename) => {
+  const handleDeleteImage = (id) => {
     axios
-      .delete(`http://localhost:5000/api/gallery/${filename}`) // DELETE endpoint
+      .delete(`http://localhost:5000/api/gallery/${id}`) // DELETE endpoint using file ID
       .then(() => {
-        setImages(images.filter((img) => img.filePath !== `/uploads/${filename}`)); // Remove deleted image from state
+        setImages(images.filter((img) => img._id !== id)); // Remove deleted image from state
       })
       .catch((err) => {
         console.error(err);
@@ -93,15 +93,15 @@ const GalleryPage = () => {
           {images.length > 0 ? (
             images.map((image, index) => (
               <div className="gallery-image" key={index}>
+                {/* Display the image by fetching it via the filename */}
                 <img
-                  src={`http://localhost:5000${image.filePath}`} // Ensure this matches the backend response
+                  src={`http://localhost:5000/api/gallery/image/${image.filename}`} // Adjust URL to match backend route
                   alt={`Gallery Image ${index}`}
                 />
+                {/* Button to delete the image */}
                 <button
                   className="delete-button"
-                  onClick={() =>
-                    handleDeleteImage(image.filePath.split('/').pop())
-                  }
+                  onClick={() => handleDeleteImage(image._id)} // Delete by ID
                 >
                   Delete
                 </button>

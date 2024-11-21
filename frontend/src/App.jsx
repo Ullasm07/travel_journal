@@ -8,6 +8,7 @@ import Timeline from './components/Timeline';
 import GetUserLocation from './components/GetUserLocation';
 import Stats from './components/Stats'; // Import Stats component
 
+
 const App = () => {
     const [trips, setTrips] = useState([]);
 
